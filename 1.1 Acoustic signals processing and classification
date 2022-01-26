@@ -1,0 +1,39 @@
+import os
+import librosa
+import random
+import soundfile
+
+dir_list = os.listdir('clips/')
+
+random.seed(3)
+
+choised = []
+
+N = 1000
+
+#for i in range(N):
+    #k = random.randint(0, len(dir_list)-1)
+    #choised.append(dir_list[k])
+random.sample(choised,N)
+print(choised)
+
+choised_audios = []
+for i in range(N):
+    y, sr = librosa.load('clips/'+choised[i])
+    if i == 0:
+        min_index = 0
+        min_dur = librosa.get_duration(y, sr)
+    elif librosa.get_duration(y,sr) < min_dur:
+        min_index = i
+        min_dur = librosa.get_duration(y, sr)
+    choised_audios.append([y, sr])
+
+print(min_dur)
+
+for i in range(N):
+    sr = choised_audios[i][1]
+    y = choised_audios[i][0]
+    print(y, sr)
+    y = y[:int(sr*min_dur)]
+    choised_audios[i][0] = y
+    soundfile.write('clips/new___'+choised[i][:-3]+'wav', y, sr)
