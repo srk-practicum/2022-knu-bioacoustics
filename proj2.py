@@ -6,7 +6,7 @@ import librosa.display
 import matplotlib.pyplot as plt
 import numpy as np
 
-x, sr = librosa.load('common_voice_uk_25803029.wav', sr = 16000, mono=True, offset=0.0, duration=3.0)
+x, sr = librosa.load('common_voice_uk_25803029.wav', sr=16000, mono=True, offset=0.0, duration=3.0)
 # показать спектр
 plt.figure(figsize=(14, 5))
 librosa.display.waveplot(x, sr=sr)
@@ -20,29 +20,31 @@ plt.colorbar()
 
 # Построение спектрального центроида
 spectral_centroids = librosa.feature.spectral_centroid(x, sr=sr)[0]
-#print(spectral_centroids)
+# print(spectral_centroids)
 # Вычисление временной переменной для визуализации
 plt.figure(figsize=(12, 4))
 frames = range(len(spectral_centroids))
-t = librosa.frames_to_time(frames, sr = 16000)
+t = librosa.frames_to_time(frames, sr=16000)
 
 # Нормализация спектрального центроида для визуализации
 def normalize(x, axis=0):
     return sklearn.preprocessing.minmax_scale(x, axis=axis)
+
+
 # Построение спектрального центроида вместе с формой волны
 librosa.display.waveplot(x, sr=sr, alpha=0.4)
 plt.plot(t, normalize(spectral_centroids), color='b')
 
 # Построение спектрального спада
-spectral_rolloff = librosa.feature.spectral_rolloff(x+0.01, sr=sr)[0]
+spectral_rolloff = librosa.feature.spectral_rolloff(x + 0.01, sr=sr)[0]
 plt.figure(figsize=(12, 4))
 librosa.display.waveplot(x, sr=sr, alpha=0.4)
 plt.plot(t, normalize(spectral_rolloff), color='r')
 
 # Построение спектральной ширины
-spectral_bandwidth_2 = librosa.feature.spectral_bandwidth(x+0.01, sr=sr)[0]
-spectral_bandwidth_3 = librosa.feature.spectral_bandwidth(x+0.01, sr=sr, p=3)[0]
-spectral_bandwidth_4 = librosa.feature.spectral_bandwidth(x+0.01, sr=sr, p=4)[0]
+spectral_bandwidth_2 = librosa.feature.spectral_bandwidth(x + 0.01, sr=sr)[0]
+spectral_bandwidth_3 = librosa.feature.spectral_bandwidth(x + 0.01, sr=sr, p=3)[0]
+spectral_bandwidth_4 = librosa.feature.spectral_bandwidth(x + 0.01, sr=sr, p=4)[0]
 plt.figure(figsize=(15, 9))
 
 librosa.display.waveplot(x, sr=sr, alpha=0.4)
@@ -50,6 +52,27 @@ plt.plot(t, normalize(spectral_bandwidth_2), color='r')
 plt.plot(t, normalize(spectral_bandwidth_3), color='g')
 plt.plot(t, normalize(spectral_bandwidth_4), color='y')
 plt.legend(('p = 2', 'p = 3', 'p = 4'))
+
+# Скорость пересечения нуля
+n0 = 9000
+n1 = 9100
+plt.figure(figsize=(14, 5))
+plt.plot(x[n0:n1])
+plt.grid()
+zero_crossings = librosa.zero_crossings(x[n0:n1], pad=False)
+print(sum(zero_crossings))
+
+# Мел-частотные кепстральные коэффициенты (MFCC)
+# Представляют собой небольшой набор признаков (обычно около 10–20),
+# которые кратко описывают общую форму спектральной огибающей.
+# Они моделируют характеристики человеческого голоса.
+mfccs = librosa.feature.mfcc(x, sr=sr)
+print(mfccs.shape)
+
+# Отображение MFCC:
+plt.figure(figsize=(15, 7))
+librosa.display.specshow(mfccs, sr=sr, x_axis='time')
+
 
 plt.show()
 
